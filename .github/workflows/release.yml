@@ -1,0 +1,26 @@
+name: Release extension
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run package
+      - name: Upload installable ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          tag="${RELEASE_TAG:-v$(node -p 'JSON.parse(require("fs").readFileSync("package.json")).version')}"
+          gh release upload "$tag" artifacts/yomihibi-v*.zip --clobber

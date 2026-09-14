@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "读日和 · 日语阅读助手",
+  "version": "0.1.0",
+  "description": "为日文网页标注假名，点击词语查看读音与中文翻译，建立自己的单词本。",
+  "minimum_chrome_version": "120",
+  "permissions": ["activeTab", "scripting", "storage", "tts"],
+  "host_permissions": ["https://api.mymemory.translated.net/*", "https://api.cognitive.microsofttranslator.com/*"],
+  "background": {"service_worker": "background.js", "type": "module"},
+  "action": {"default_popup": "popup.html", "default_title": "读日和 · 开始日语阅读"},
+  "options_page": "settings.html",
+  "icons": {"16": "icons/16.png", "48": "icons/48.png", "128": "icons/128.png"},
+  "commands": {"toggle-reading": {"suggested_key": {"default": "Alt+J"}, "description": "开启或关闭当前页面日语辅助"}},
+  "content_security_policy": {"extension_pages": "script-src 'self'; object-src 'self'"}
+}

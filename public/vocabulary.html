@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>我的单词本 · 读日和</title><link rel="stylesheet" href="ui.css"></head>
+<body>
+  <aside class="sidebar"><a class="brand" href="vocabulary.html"><span class="logo">読</span><span>读日和<small>YOMIHIBI</small></span></a><div class="sidebar-caption">我的阅读空间</div><nav><a class="nav-item selected" href="vocabulary.html"><span>▤</span> 单词本 <small id="nav-count">0</small></a><a class="nav-item" href="demo.html"><span>◷</span> 阅读练习</a><a class="nav-item" href="settings.html"><span>⚙</span> 偏好设置</a></nav><div class="sidebar-note"><span class="leaf">❧</span><p>ことばを集めて、<br>世界を広げる。</p><small>收集词语，也拓宽世界。</small></div><div class="sidebar-footer"><span class="status-dot active"></span> 本地保存，安心积累 <small>v0.1.0</small></div></aside>
+  <main class="workspace">
+    <div class="topbar"><span>阅读空间 <span class="slash">/</span> <strong>我的单词本</strong></span><span class="date-label" id="today"></span></div>
+    <header class="page-heading"><div><div class="eyebrow">YOUR PERSONAL WORD GARDEN</div><h1>每个词，都是一点进步<span class="accent">。</span></h1><p>把阅读中遇到的心动与不懂，都留在这里。</p></div><div class="header-actions"><button class="secondary" id="import">↓ 导入备份</button><button class="primary" id="export">↑ 导出单词</button><input type="file" id="import-file" accept="application/json,.json" hidden></div></header>
+    <section class="stats" aria-label="学习统计"><div class="stat"><span class="stat-label">收藏的词语 <span>▤</span></span><div><strong id="stat-total">0</strong><small>个词，一点点积累</small></div></div><div class="stat"><span class="stat-label">正在学习 <span>◌</span></span><div><strong id="stat-learning">0</strong><small>与新知识慢慢熟悉</small></div></div><div class="stat"><span class="stat-label">已经掌握 <span>✧</span></span><div><strong id="stat-mastered">0</strong><small>让每一次阅读更轻松</small></div></div></section>
+    <section class="collection">
+      <div class="collection-heading"><h2>我的收藏 <span id="collection-count">0</span></h2><span class="muted small">今日も、少しずつ。</span></div>
+      <div class="collection-toolbar"><div class="tabs" role="tablist" aria-label="学习状态"><button role="tab" aria-selected="true" data-filter="all">全部词语</button><button role="tab" aria-selected="false" data-filter="learning">学习中</button><button role="tab" aria-selected="false" data-filter="mastered">已掌握</button></div><div class="search-tools"><label class="search"><span>⌕</span><input type="search" id="search" placeholder="搜索单词、假名或释义" aria-label="搜索单词、假名或释义"></label><select id="sort" aria-label="排序"><option value="newest">最近收藏</option><option value="oldest">最早收藏</option><option value="kana">假名顺序</option></select></div></div>
+      <div id="words" class="word-grid"></div>
+      <div id="empty" class="empty" hidden><div class="empty-symbol">栞</div><h3>你的第一枚词语书签</h3><p>在日文网页开启读日和，点击词语，再点「收藏单词」。<br>读过的词，就会在这里慢慢生长。</p><a class="primary link-button" href="demo.html">去阅读练习，收藏第一个词 →</a></div>
+      <div id="no-results" class="empty" hidden><h3>还没有匹配的词语</h3><p>换一个关键词，或切换学习状态试试。</p></div>
+      <div id="pagination" class="pagination" hidden><button id="previous" class="secondary">← 上一页</button><span id="page-number"></span><button id="next" class="secondary">下一页 →</button></div>
+      <p class="collection-footnote">词语与笔记保存在当前浏览器中，记得偶尔导出一份备份。</p>
+    </section>
+  </main>
+  <dialog id="word-dialog" class="word-dialog"><form method="dialog"><button class="dialog-close icon-button" aria-label="关闭详情">×</button></form><div id="word-detail"></div></dialog>
+  <dialog id="export-dialog" class="export-dialog"><form method="dialog"><button class="dialog-close icon-button" aria-label="关闭导出">×</button></form><div class="eyebrow">TAKE YOUR WORDS WITH YOU</div><h2>给积累留一份备份</h2><p class="muted">导出全部收藏的词语，与你一起继续学习。</p><button class="primary wide" id="export-json">JSON 完整备份 · 可重新导入</button><button class="secondary wide" id="export-csv">CSV 表格 · 适合 Excel / Anki</button></dialog>
+  <div id="toast" class="toast" role="status" hidden></div><script src="vocabulary.js" type="module"></script>
+</body></html>

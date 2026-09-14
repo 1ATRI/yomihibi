@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>读日和 · 日语阅读助手</title><link rel="stylesheet" href="ui.css"></head>
+<body class="popup-body">
+  <header class="popup-header"><a class="brand" href="vocabulary.html" target="_blank"><span class="logo">読</span><span>读日和<small>YOMIHIBI</small></span></a><a class="icon-button" href="settings.html" target="_blank" aria-label="打开设置">⚙</a></header>
+  <main class="popup-main">
+    <div class="eyebrow">A LITTLE JAPANESE, EVERY DAY</div>
+    <h1>让日语，<br>一点点读懂。</h1>
+    <div class="sample"><ruby>日常<rt>にちじょう</rt></ruby>の<ruby>小<rt>ちい</rt></ruby>さな<ruby>発見<rt>はっけん</rt></ruby><span>发现日常里的小小惊喜</span></div>
+    <section class="reading-control"><div><span class="status-dot" id="status-dot"></span><strong id="page-status">准备开始阅读</strong><p id="site-name">正在读取当前页面…</p></div><button id="toggle-reading" class="switch" role="switch" aria-checked="false" aria-label="当前页面阅读辅助" disabled><span></span></button></section>
+    <p id="status-message" class="muted small" role="status">开启后，点击日文词语查看释义。</p>
+    <label class="check-row"><span>汉字上方显示假名</span><input id="show-furigana" type="checkbox" checked></label>
+    <a class="primary wide link-button" href="vocabulary.html" target="_blank"><span>▤ &nbsp; 我的单词本</span><span id="word-count">0 词 →</span></a>
+    <div class="popup-bottom"><a href="demo.html" target="_blank">打开阅读练习 ↗</a><span>快捷键 <kbd>Alt</kbd> + <kbd>J</kbd></span></div>
+  </main>
+  <footer class="popup-footer">离线注音 · 单词保存在此浏览器</footer>
+  <div id="toast" class="toast" role="status" hidden></div><script src="popup.js" type="module"></script>
+</body></html>

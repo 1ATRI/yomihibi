@@ -1,0 +1,8 @@
+node_modules/
+dist/
+artifacts/
+.test-profile/
+.env*
+!.env.example
+*.log
+tools-local/

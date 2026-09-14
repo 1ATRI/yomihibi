@@ -1,0 +1,15 @@
+{
+  "name": "yomihibi",
+  "version": "0.1.0",
+  "private": true,
+  "description": "读日和 · 离线假名注音、日语查词与单词收藏浏览器扩展",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:e2e": "node tests/e2e.mjs",
+    "package": "npm run build && node scripts/package.mjs"
+  },
+  "dependencies": {"fflate": "0.8.2", "kuromoji": "0.1.2", "wanakana": "5.3.1"},
+  "devDependencies": {"esbuild": "0.25.10", "playwright": "1.55.1", "sharp": "0.34.4"}
+}
