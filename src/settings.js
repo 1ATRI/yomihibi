@@ -13,12 +13,14 @@ $('#ruby-size').oninput = preview; $('#furigana').onchange = preview; $('#provid
 $('#settings-form').onsubmit = async event => {
   event.preventDefault();
   try {
-    await request('SAVE_SETTINGS', { settings: { provider: $('#provider').value, showFurigana: $('#furigana').checked, rubySize: Number($('#ruby-size').value), azureKey: $('#azure-key').value, azureRegion: $('#azure-region').value } });
+    await request('SAVE_SETTINGS', { settings: { provider: $('#provider').value, showFurigana: $('#furigana').checked, rubySize: Number($('#ruby-size').value), azureKey: $('#azure-key').value, azureRegion: $('#azure-region').value, language: $('#language').value, highlightSubject: $('#subject').checked, highlightBackbone: $('#backbone').checked, showChineseJa: $('#chinese-ja').checked, showChineseEn: $('#chinese-en').checked } });
     $('#save-status').textContent = '✓ 已保存，已开启的页面会同步更新'; notify('偏好设置已保存');
   } catch (error) { notify(error.message, true); }
 };
 request('GET_SETTINGS').then(settings => {
   $('#provider').value = settings.provider; $('#furigana').checked = settings.showFurigana;
   $('#ruby-size').value = settings.rubySize; $('#azure-key').value = settings.azureKey; $('#azure-region').value = settings.azureRegion;
+  $('#language').value = settings.language; $('#subject').checked = settings.highlightSubject; $('#backbone').checked = settings.highlightBackbone;
+  $('#chinese-ja').checked = settings.showChineseJa; $('#chinese-en').checked = settings.showChineseEn;
   preview(); providerHint();
 }).catch(error => notify(error.message, true));

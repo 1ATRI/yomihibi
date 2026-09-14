@@ -1,60 +1,69 @@
 # 读日和 · Yomihibi
 
-**让日语，一点点读懂。**
+**读懂一句，记住一点。**
 
-面向中文使用者的 Chrome / Edge 日语阅读辅助扩展：网页汉字上方显示假名，点击词语查看读音与中文翻译，再将遇见的词语收藏到自己的单词本。
+面向中文使用者的 Chrome / Edge 日英阅读助手。日语假名、主语与句子主干高亮、可选的原文上方中文标注、点击查词收藏，再用翻面卡片复习见过的词。
 
-![单词本界面](docs/images/vocabulary.png)
+![日英单词本](docs/images/vocabulary.png)
 
-> 截图中的示例词语仅用于展示；首次安装的单词本为空，不会添加演示数据。
+> 截图使用测试示例词语；实际安装时不会添加演示收藏。
+
+## 第二版的新功能
+
+| 功能 | 日语 | 英语 |
+| --- | --- | --- |
+| 主语与主干高亮 | 主语 S、话题 T、谓语 V、宾语 O；区分 は 话题和 が 主语 | 主语 S、谓语 V、宾语 O、补语 C |
+| 原文上方显示中文 | 独立开关，可与假名同时显示 | 独立开关，逐词中文标注 |
+| 点击查词 | 假名、罗马音、原形、词性、中文释义、句子结构摘要 | 英文词语、原形、词性、中文释义、句子结构摘要 |
+| 朗读与收藏 | 日语语音，保留原有收藏 | 英语语音，按语言区分收藏 |
+| 背词练习 | 到期复习、翻面自测、中文反向回想 | 与日语共用单词本和复习进度 |
+
+假名与主干分析在本地运行。主干来自词性与句型规则，**是候选结构，不是完整句法解析**；复杂从句、倒装和省略可能误判，不会补造日语中省略的主语。网页和查词卡片均提供提示。
+
+![英语中文标注与主干卡片](docs/images/english.png)
 
 ## 下载与安装
 
-前往 **[Releases 下载最新版安装包](https://github.com/1ATRI/yomihibi/releases/latest)**，下载 `yomihibi-v0.1.0.zip` 并解压。
+从 **[Releases 下载最新版](https://github.com/1ATRI/yomihibi/releases/latest)** 的 `yomihibi-v0.2.0.zip`，解压后：
 
 1. Chrome 打开 `chrome://extensions/`；Edge 打开 `edge://extensions/`。
-2. 开启页面中的「开发者模式」。
-3. 点击「加载已解压的扩展程序」，选择解压后**直接包含 `manifest.json` 的目录**。
-4. 将「读日和」固定到浏览器工具栏。
-5. 打开日文网页，点击插件图标，开启「当前页面阅读辅助」。也可按 `Alt + J`。
+2. 开启「开发者模式」，点击「加载已解压的扩展程序」。
+3. 选择**直接包含 `manifest.json` 的目录**，并将读日和固定到工具栏。
+4. 打开日文 / 英文网页，点击插件图标开启阅读辅助，或按 `Alt + J`。
 
-目前通过开发者模式加载，尚未上架浏览器扩展商店。下载仓库的 Source code ZIP 是源码，需先构建；Release 中单独附带的 `yomihibi-v0.1.0.zip` 才是可直接加载的插件。
+目前尚未上架扩展商店。GitHub 自动提供的 Source code ZIP 是源码，需构建后才能加载；Release 单独附带的 ZIP 是可直接加载的扩展。
 
-详细图文入口：[使用指南](docs/USER_GUIDE.md)。
+### 从 0.1.0 升级
 
-## 已实现功能
+先在单词本导出 JSON 备份。将新版扩展文件覆盖到**原来加载的同一个目录**，在扩展管理页点击刷新，再刷新网页。不要先卸载插件；卸载会清除本地收藏。若改用新目录产生不同扩展 ID，可导入备份恢复。
 
-| 功能 | 说明 |
-| --- | --- |
-| 汉字假名注音 | 内置 Kuromoji / IPADIC 词典，分词与注音完全离线；用原生 `<ruby>` 显示平假名 |
-| 送假名对齐 | 例如 `読みます` 只给 `読` 标 `よ`，尽量保留原文阅读节奏 |
-| 点击查词 | 显示词语、假名、罗马音、词性、原形、中文机器翻译 |
-| 日语朗读 | 使用浏览器或系统的日语语音；缺少语音时给出提示 |
-| 多种翻译方式 | 默认 MyMemory 免密钥；可配置 Microsoft Translator 官方接口；始终提供 Bing 网页链接 |
-| 单词收藏页 | 收藏词语、释义、例句和原文来源；支持假名 / 中文 / 罗马音搜索 |
-| 学习管理 | 学习中 / 已掌握切换、笔记编辑、补充释义、删除与分页 |
-| 备份与导出 | JSON 完整导入导出，CSV 导出供 Excel / Anki 等工具使用 |
-| 阅读偏好 | 假名开关、字号调节；设置可更新到已经开启的网页 |
-| 动态内容 | 监测新加入的网页文本，分批注音；关闭后恢复文本 |
-| 内置练习 | 一篇原创日语短文，可直接体验注音与收藏 |
+0.1.0 收藏默认归为日语，原有 ID、释义、笔记和掌握状态保持；新版本能导入 v1 / v2 备份。v2 备份额外保存语言和复习进度。
 
-## 翻译服务
+## 怎么用
 
-- **MyMemory（默认）**：不用注册或填密钥，联网即可尝试查词。有服务端额度和频率限制，网络、短词和上下文不足都会影响结果。
-- **Microsoft Translator**：设置中填写自己的 Azure Translator 密钥和区域，使用微软官方接口。计费与配额由你的 Azure 资源决定。本项目不提供公共密钥。
-- **Bing 网页模式**：不自动请求在线翻译，点击查词卡片内的链接，在 Bing 网页查看释义和朗读。
+- **自动 / 日语 / 英语**：弹窗可选择处理语言。自动模式利用字符与页面语言提示判断；识别不合适时可手动选择。
+- **高亮**：主语 / 话题和谓语 / 宾补语分别开关，查词卡片显示所在句的候选主干。
+- **中文标注**：日语、英语各一个开关，默认关闭。开启后将可见区域中的不同词语逐个发送给翻译服务；单词重复时复用结果，每轮最多 120 个请求，达到上限可在网页点击「继续」。错误时暂停，可重试。逐词释义不等于整句翻译。
+- **单词本**：按语言、学习状态和关键词筛选，编辑笔记 / 释义，保存原文片段和来源。
+- **背词**：选择语言、到期 / 全部、正向 / 反向和本轮数量；空格翻面，1～4 评价。忘记的词本轮重现，记住的词按间隔排到未来。
 
-微软官方接口与 Bing 网页入口是两种接入方式；项目没有抓取 Bing 内部令牌。仅查词时向所选服务发送该词原形，不发送整页、例句或网址。在线结果是机器翻译，不是权威词典。发音来自系统 / 浏览器语音。
+![收藏背词](docs/images/review.png)
 
-## 界面
+复习间隔按档位为 1、3、7、14、30、60、120 天；「很熟悉」前进两档，「有点模糊」10 分钟后，「忘记了」1 分钟后到期并在本轮再次出现。没有释义的词暂时跳过。手动标记「已掌握」的词不进入到期队列，仍可在「全部」中练习。
 
-![阅读练习与注音](docs/images/demo.png)
+## 翻译、朗读和隐私
 
-<img src="docs/images/popup.png" width="360" alt="读日和扩展弹出面板">
+- 默认 **MyMemory**：免费免密钥，有服务配额和频率限制。
+- **Microsoft Translator**：使用你自己的 Azure Translator 密钥与资源区域；日语 / 英语分别设为来源语言，目标简体中文。
+- **Bing 网页模式**：点击卡片中的链接查看翻译，不支持自动行间中文标注。
+
+普通查词只发送点击词语的原形；开启行间中文后，会发送可见内容中被标注词语的原形，不发送整页原文、原文 URL、笔记或收藏例句。语法分析不调用网络。密钥只保存在扩展本地存储，不写入导出文件或网页。朗读依赖已安装的对应语言语音，缺少时会提示。
+
+收藏和复习进度保存在此浏览器，最多 5000 词，不跨设备同步。请定期导出 JSON；CSV 可供 Excel / Anki 字段映射使用。详见 [隐私说明](docs/PRIVACY.md)。
 
 ## 本地开发
 
-需要 Node.js 22+ 和 npm。
+需要 Node.js 22.12+ 和 npm。
 
 ```bash
 git clone https://github.com/1ATRI/yomihibi.git
@@ -63,41 +72,34 @@ npm ci
 npm run build
 ```
 
-构建产物位于 `dist/`；在浏览器「加载已解压的扩展程序」中选择它。源码或配置修改后，重新构建并在扩展管理页面点击刷新，然后刷新待阅读网页。
+在扩展管理页加载 `dist/`。修改后重新构建、刷新扩展，再刷新阅读网页。
 
 ```bash
-npm test                       # 核心逻辑 + 真实 IPADIC 词典测试
+npm test
 npx playwright install chromium
-npm run test:e2e                # 真实扩展环境的浏览器测试
-npm run package                 # 构建并生成 artifacts/yomihibi-v0.1.0.zip
+npm run test:e2e
+npm run package
 ```
 
-端到端测试使用隔离浏览器配置，不读取日常浏览器收藏或登录态；外部翻译响应采用模拟数据。测试副本只额外获得本机 HTTP 测试页面的权限，发布包仍使用 `activeTab` 临时授权，不请求所有网站访问权。
+输出 `artifacts/yomihibi-v0.2.0.zip`。自动测试使用隔离 Chromium 配置，实际运行扩展与词典，外部翻译采用模拟响应；不会访问日常浏览器数据。
 
-## 项目文档
+## 文档与边界
 
-- [使用指南与常见问题](docs/USER_GUIDE.md)
-- [功能与版本规划](docs/PROJECT.md)
-- [架构、消息协议和开发说明](docs/ARCHITECTURE.md)
-- [隐私与权限说明](docs/PRIVACY.md)
-- [测试范围和已知限制](docs/TESTING.md)
-- [贡献指南](CONTRIBUTING.md)
-- [更新记录](CHANGELOG.md)
+- [使用与升级指南](docs/USER_GUIDE.md)
+- [项目功能与规划](docs/PROJECT.md)
+- [架构和消息协议](docs/ARCHITECTURE.md)
+- [背词调度说明](docs/REVIEW.md)
+- [测试范围](docs/TESTING.md)
+- [贡献指南](CONTRIBUTING.md) / [更新记录](CHANGELOG.md)
 
-## 已知边界
-
-人名、多音字、新词、跨 DOM 节点的词语可能误分词或误注音。扩展只处理当前页面可访问的 DOM 文字；图片、浏览器内置 PDF、扩展商店、浏览器设置页、跨域 iframe、封闭 Shadow DOM 不在当前支持范围。高度动态的页面可能需要刷新后重新开启。链接上的普通点击查词，`Ctrl / ⌘ + 点击` 保留原链接行为。
-
-收藏保存在当前浏览器，最多 5000 词，不跨设备同步；卸载或清理扩展数据前请导出备份。Firefox 暂未适配。
+文本节点是分词边界；跨标签词语或句子可能分析不完整。人名、多音字、新词会影响日语注音。图片、PDF、浏览器内置页面、扩展商店、跨域 iframe、Shadow DOM 内文暂不处理。高度动态页面可能需要重新开启或刷新。链接上普通点击查词，Ctrl / ⌘ + 点击保留原链接行为。Firefox 暂未适配。
 
 ## 致谢与许可
 
-本项目代码采用 [MIT License](LICENSE)。随包使用的第三方代码和词典遵循各自许可，构建结果中的 `licenses/` 保留完整文本：
+项目代码采用 [MIT License](LICENSE)。构建包 `licenses/` 包含依赖的许可与词典声明：
 
-- [Kuromoji.js](https://github.com/takuyaa/kuromoji.js) — Apache-2.0
-- [IPADIC](https://github.com/takuyaa/kuromoji.js/blob/master/NOTICE.md) — 词典许可见 NOTICE
-- [WanaKana](https://github.com/WaniKani/WanaKana) — MIT
-- [fflate](https://github.com/101arrowz/fflate) — MIT
-- [doublearray](https://github.com/takuyaa/doublearray) — MIT
+- [Kuromoji.js / IPADIC](https://github.com/takuyaa/kuromoji.js) — 日语分词与词典，Apache-2.0 / IPADIC NOTICE。
+- [Compromise](https://github.com/spencermountain/compromise) — 英语词性、词组与动词分析，MIT。
+- [WanaKana](https://github.com/WaniKani/WanaKana)、[fflate](https://github.com/101arrowz/fflate)、[doublearray](https://github.com/takuyaa/doublearray) — MIT。
 
-浏览器实现依据 [Chrome activeTab 文档](https://developer.chrome.com/docs/extensions/develop/concepts/activeTab) 与 [跨域请求文档](https://developer.chrome.com/docs/extensions/develop/concepts/network-requests)。翻译接入参考 [MyMemory 文档](https://mymemory.translated.net/doc/spec.php) 与 [微软 Translator 文档](https://learn.microsoft.com/azure/ai-services/translator/text-translation/reference/v3/translate)。
+接口依据：[Chrome activeTab](https://developer.chrome.com/docs/extensions/develop/concepts/activeTab)、[MyMemory](https://mymemory.translated.net/doc/spec.php)、[Microsoft Translator](https://learn.microsoft.com/azure/ai-services/translator/text-translation/reference/v3/translate)。

@@ -18,7 +18,7 @@ export function notify(text, isError = false) {
   clearTimeout(notify.timer);
   notify.timer = setTimeout(() => { node.hidden = true; }, 4000);
 }
-export async function speak(text) { return request('SPEAK', { text }); }
+export async function speak(text, language = 'ja') { return request('SPEAK', { text, language }); }
 export function download(name, data, type) {
   const url = URL.createObjectURL(new Blob([data], { type }));
   const link = el('a'); link.href = url; link.download = name; link.click();

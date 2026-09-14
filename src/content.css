@@ -3,5 +3,12 @@
 .yh-word:focus-visible { outline: 2px solid #bb694b; outline-offset: 3px; }
 .yh-word ruby { ruby-align: center; ruby-position: over; font: inherit; }
 .yh-word rt { font: 500 var(--yh-ruby-size, 60%)/1.1 "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif !important; color: #a95d42 !important; user-select: none; }
-.yh-hide-ruby .yh-word rt { display: none !important; }
+.yh-hide-ruby .yh-word .yh-kana { display: none !important; }
 .yh-run { line-height: inherit; }
+.yh-word .yh-zh { color: #527a53 !important; font-size: var(--yh-ruby-size, 60%) !important; }
+.yh-word .yh-translated { ruby-position: over; }
+.yh-subject-on .yh-word[data-role="subject"] .yh-surface { background-color: #cfe1f078 !important; border-bottom: 2px solid #548eb0 !important; }
+.yh-subject-on .yh-word[data-role="topic"] .yh-surface { background-color: #dfd5f278 !important; border-bottom: 2px dashed #9471b7 !important; }
+.yh-backbone-on .yh-word[data-role="predicate"] .yh-surface { background-color: #f9d5b478 !important; border-bottom: 2px solid #bb754b !important; }
+.yh-backbone-on .yh-word[data-role="object"] .yh-surface { background-color: #d8e9c878 !important; border-bottom: 2px solid #789653 !important; }
+.yh-backbone-on .yh-word[data-role="complement"] .yh-surface { background-color: #eadbaa78 !important; border-bottom: 2px solid #a99142 !important; }

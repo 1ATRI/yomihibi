@@ -1,15 +1,19 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>读日和 · 日语阅读助手</title><link rel="stylesheet" href="ui.css"></head>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>读日和 · 日英阅读助手</title><link rel="stylesheet" href="ui.css"></head>
 <body class="popup-body">
   <header class="popup-header"><a class="brand" href="vocabulary.html" target="_blank"><span class="logo">読</span><span>读日和<small>YOMIHIBI</small></span></a><a class="icon-button" href="settings.html" target="_blank" aria-label="打开设置">⚙</a></header>
   <main class="popup-main">
-    <div class="eyebrow">A LITTLE JAPANESE, EVERY DAY</div>
-    <h1>让日语，<br>一点点读懂。</h1>
+    <div class="eyebrow">READ. UNDERSTAND. REMEMBER.</div>
+    <h1>读懂一句，<br>记住一点。</h1>
     <div class="sample"><ruby>日常<rt>にちじょう</rt></ruby>の<ruby>小<rt>ちい</rt></ruby>さな<ruby>発見<rt>はっけん</rt></ruby><span>发现日常里的小小惊喜</span></div>
     <section class="reading-control"><div><span class="status-dot" id="status-dot"></span><strong id="page-status">准备开始阅读</strong><p id="site-name">正在读取当前页面…</p></div><button id="toggle-reading" class="switch" role="switch" aria-checked="false" aria-label="当前页面阅读辅助" disabled><span></span></button></section>
-    <p id="status-message" class="muted small" role="status">开启后，点击日文词语查看释义。</p>
+    <p id="status-message" class="muted small" role="status">开启后，点击日语或英语词语查看释义。</p>
+    <label class="check-row"><span>阅读语言</span><select id="reading-language" aria-label="阅读语言"><option value="auto">自动识别</option><option value="ja">日语</option><option value="en">英语</option></select></label>
     <label class="check-row"><span>汉字上方显示假名</span><input id="show-furigana" type="checkbox" checked></label>
+    <div class="popup-options"><label><input id="highlight-subject" type="checkbox"> 主语 / 话题高亮</label><label><input id="highlight-backbone" type="checkbox"> 谓语、宾补语标记</label><label><input id="chinese-ja" type="checkbox"> 日文上方显示中文</label><label><input id="chinese-en" type="checkbox"> 英文上方显示中文</label></div>
+    <p class="small muted inline-notice">中文标注开启后，会逐词翻译可见内容；每轮最多 120 个不同词，可在网页继续。</p>
     <a class="primary wide link-button" href="vocabulary.html" target="_blank"><span>▤ &nbsp; 我的单词本</span><span id="word-count">0 词 →</span></a>
+    <a class="review-quick" href="review.html" target="_blank">✧ 开始背词 <span id="due-count">查看待复习 →</span></a>
     <div class="popup-bottom"><a href="demo.html" target="_blank">打开阅读练习 ↗</a><span>快捷键 <kbd>Alt</kbd> + <kbd>J</kbd></span></div>
   </main>
   <footer class="popup-footer">离线注音 · 单词保存在此浏览器</footer>

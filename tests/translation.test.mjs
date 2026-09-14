@@ -25,3 +25,14 @@ test('Bing mode makes no network request', async () => {
   const result = await translate('猫', { provider: 'bing' }, () => { throw new Error('Unexpected network call'); });
   assert.equal(result.external, true);
 });
+test('English uses en to Chinese for both translation providers', async () => {
+  const free = await translate('book', { provider: 'mymemory' }, async url => {
+    assert.equal(new URL(url).searchParams.get('langpair'), 'en|zh-CN');
+    return { ok: true, json: async () => ({ responseStatus: 200, responseData: { translatedText: '书' } }) };
+  }, 'en');
+  assert.equal(free.meaning, '书');
+  await translate('book', { provider: 'microsoft', azureKey: 'fixture' }, async url => {
+    assert.equal(new URL(url).searchParams.get('from'), 'en');
+    return { ok: true, json: async () => [{ translations: [{ text: '书' }] }] };
+  }, 'en');
+});

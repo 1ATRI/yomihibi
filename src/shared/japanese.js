@@ -1,4 +1,5 @@
 import { toHiragana, toRomaji } from 'wanakana';
+import { reviewState } from './review.js';
 
 export const hasJapanese = text => /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(text);
 export const hasKanji = text => /[\p{Script=Han}々〆]/u.test(text);
@@ -31,10 +32,10 @@ export function rubyParts(surface, reading) {
 export function normalizeToken(token) {
   const surface = token.surface_form;
   const reading = token.reading && token.reading !== '*' ? hiragana(token.reading) : (hasKanji(surface) ? '' : hiragana(surface));
-  return { surface, reading, base: token.basic_form && token.basic_form !== '*' ? token.basic_form : surface, pos: token.pos || '', romaji: romaji(reading) };
+  return { surface, reading, base: token.basic_form && token.basic_form !== '*' ? token.basic_form : surface, pos: token.pos || '', detail: token.pos_detail_1 || '', romaji: romaji(reading), language: 'ja' };
 }
 
-export function wordId(word) { return `${word.base || word.surface}\u241f${word.reading || ''}`; }
+export function wordId(word) { return word.language === 'en' ? `en\u241f${String(word.base || word.surface || '').toLowerCase()}` : `${word.base || word.surface}\u241f${word.reading || ''}`; }
 
 export function safeUrl(value) {
   try { const url = new URL(value); return ['https:', 'http:'].includes(url.protocol) ? url.href : ''; } catch { return ''; }
@@ -47,9 +48,12 @@ export function sanitizeWord(word) {
     item[key] = typeof word[key] === 'string' ? word[key].slice(0, max) : '';
   }
   item.base ||= item.surface;
+  item.language = word.language === 'en' ? 'en' : 'ja';
+  if (item.language === 'en') item.base = item.base.toLowerCase();
   item.sourceUrl = safeUrl(word.sourceUrl);
   item.id = wordId(item);
   item.mastered = word.mastered === true;
+  item.review = reviewState(word.review);
   item.createdAt = Number.isFinite(word.createdAt) && word.createdAt > 0 ? Math.min(word.createdAt, Date.now()) : Date.now();
   return item;
 }
@@ -60,5 +64,5 @@ export function csvText(words) {
     if (/^[\s]*[=+@-]/.test(text)) text = `'${text}`;
     return `"${text.replaceAll('"', '""')}"`;
   };
-  return '\uFEFF' + [['单词', '原形', '假名', '罗马音', '释义', '例句', '笔记', '状态'], ...words.map(w => [w.surface, w.base, w.reading, w.romaji, w.meaning, w.sentence, w.note, w.mastered ? '已掌握' : '学习中'])].map(row => row.map(cell).join(',')).join('\r\n');
+  return '\uFEFF' + [['语言', '单词', '原形', '假名', '罗马音', '释义', '例句', '笔记', '状态', '下次复习'], ...words.map(w => [w.language === 'en' ? '英语' : '日语', w.surface, w.base, w.reading, w.romaji, w.meaning, w.sentence, w.note, w.mastered ? '已掌握' : '学习中', w.review?.dueAt ? new Date(w.review.dueAt).toISOString() : '尚未复习'])].map(row => row.map(cell).join(',')).join('\r\n');
 }

@@ -2,97 +2,99 @@
 
 ## 技术组成
 
-Manifest V3，原生 JavaScript / HTML / CSS，esbuild 打包。Kuromoji 负责形态素分析，IPADIC 随包发布；WanaKana 转换假名与罗马音；fflate 解压词典和生成发行 ZIP。所有可执行代码随包发布，不使用远程脚本或 eval。
+Manifest V3，原生 JavaScript / HTML / CSS，esbuild 打包。Kuromoji / IPADIC 提供日语形态素与读音，WanaKana 转换假名和罗马音，Compromise 提供英语词性、词形和短语信息，fflate 解压词典与打包。所有可执行代码随包发布，不使用远程脚本或 eval。
 
 ```mermaid
 flowchart LR
-  P[工具栏弹窗 / Alt+J] -->|activeTab + scripting| C[网页内容脚本]
-  C -->|文本分批 TOKENIZE| B[扩展 Service Worker]
-  B --> D[本地 Kuromoji + IPADIC]
-  C --> R[ruby 注音 / 查词卡片]
-  R -->|单词原形 TRANSLATE| B
+  P[工具栏 / Alt+J] -->|activeTab + scripting| C[网页内容脚本]
+  C -->|文本与语言 TOKENIZE| B[Service Worker]
+  B --> J[Kuromoji + 日语规则]
+  B --> E[Compromise + 英语规则]
+  C --> R[假名 / 主干 / 查词卡片]
+  C --> I[可选中文标注队列]
+  R -->|TRANSLATE| B
+  I -->|TRANSLATE_INLINE| B
   B --> T[所选翻译服务]
-  R -->|SAVE_WORD| B
-  B --> S[chrome.storage.local]
-  V[单词本 / 设置] -->|消息接口| B
+  V[单词本 / 背词 / 设置] -->|消息接口| B
+  B --> S[本地收藏 / 复习 / 偏好]
 ```
 
 ## 目录
 
-```text
-manifest.json             权限、工作线程、弹窗、快捷键
-public/                   静态 HTML 页面
-src/background.js         消息路由、权限边界、翻译缓存、串行存储写入
-src/tokenizer.js          fetch 本地词典 + gzip 解压 + Kuromoji 装载
-src/content.js            DOM 扫描、动态观察、ruby、查词卡片
-src/translation.js        MyMemory / Microsoft / Bing 模式
-src/shared/               日文工具、数据校验、界面帮助函数
-src/styles/               插件页面样式和卡片 Shadow DOM 样式
-src/popup.js               当前页面控制
-src/vocabulary.js          单词搜索、笔记、学习状态、备份
-src/settings.js            偏好设置
-src/demo.js                内置练习的本地控制适配
-scripts/                   构建与 ZIP 打包
-tests/                     单元测试与浏览器集成测试
-docs/                      项目文档与界面截图
-dist/                      生成的可加载扩展，不提交源码仓库
-artifacts/                 安装 ZIP 和测试产物，不提交源码仓库
-```
+| 文件 | 职责 |
+| --- | --- |
+| `manifest.json` | 权限、工作线程、弹窗、快捷键 |
+| `src/background.js` | 消息边界、翻译缓存、串行存储修改 |
+| `src/tokenizer.js` | 读取随包词典、gzip 解压与 Kuromoji 装载 |
+| `src/analysis/` | 日语话题 / 主语 / 主干规则、英语词形与角色分析 |
+| `src/content.js` / `content.css` | DOM 扫描、语言识别、动态观察、标注与查词 |
+| `src/inline.js` | 可见词语中文标注队列、复用、限额与暂停 |
+| `src/translation.js` | 日英到中文的 MyMemory / Microsoft 请求，Bing 模式 |
+| `src/shared/` | 数据校验、语言与假名工具、复习调度、界面帮助函数 |
+| `src/review.js` | 背词队列、翻面、评分、快捷键与结果页 |
+| `src/vocabulary.js` | 语言筛选、搜索、笔记、学习状态、备份 |
+| `src/popup.js` / `settings.js` / `demo.js` | 当前页控制、偏好、内置练习 |
+| `public/` / `src/styles/` | 静态 HTML 与样式 |
+| `scripts/` / `tests/` / `docs/` | 构建、测试与文档 |
+| `dist/` / `artifacts/` | 生成的扩展、安装 ZIP、测试产物，不提交源码仓库 |
 
-## 注音过程
+## 分析与渲染
 
-用户操作获得当前页临时权限，工作线程注入脚本和 CSS。内容脚本扫描文字，跳过输入框、可编辑节点、代码、现成 ruby、隐藏属性区域等。每次请求最多 40 个节点、约 12000 UTF-16 码元；超过 4000 码元的文本节点先拆分，不拆开代理对。工作线程接口另有限制：最多 80 条文本和 16000 码元。
+自动识别以文本节点的字符和最近的 `lang` 属性为依据，避免将中文汉字直接当作日文；用户可手动选择语言。每次内容脚本请求最多 40 个节点、约 12000 UTF-16 码元，超 4000 码元的节点先拆分，不拆代理对。工作线程上限为 80 条 / 16000 码元。日语词典初始化使用共享 Promise，MV3 工作线程回收后会重新加载。
 
-词典初始化用共享 Promise，后续请求重用。MV3 工作线程被浏览器回收后，下次请求会重新加载词典。每条文本的分词结果拼接必须与原文一致才替换，避免丢失空白、emoji 或其他符号。
+日语规则区分 は 话题与 が 主语，标注 を 宾语及句末谓语；不会为省略主语补造人物。英语根据词性与短语信息识别主语和谓语，并保守选择宾语或补语。两者都是候选主干，复杂从句、倒装、引用、歧义和跨节点句子可能不准确，不是完整依存句法分析器。
 
-`rubyParts` 将汉字组与假名锚点对齐，尽可能只为汉字标注。找不到合理对齐时以整词注音兜底；没有词典读音时保留原文。
+分词后必须能精确拼回原文才替换节点，保留空白、标点和 emoji。`rubyParts` 对齐汉字与送假名，无法对齐时整词注音。原形用于查词和去重；token 的角色、句子及候选主干存入 WeakMap。日文假名和可选中文分别使用 `.yh-kana`、`.yh-zh`，隐藏假名不影响中文。
 
-生成节点的 token 数据存于 WeakMap。MutationObserver 处理新增 / 更新区域，应用自己的 DOM 改动时暂时断开观察，防止循环。关闭注音时先去掉自建 rt，再恢复生成容器内的当前文字，避免用旧快照覆盖网页改动。
+MutationObserver 处理新增 / 更新区域。自身 DOM 替换期间断开观察，生成容器被扫描规则跳过。关闭时删除自建 rt 后恢复容器里的当前文字，避免旧快照覆盖网页更新。语言切换用 generation 序号丢弃旧异步结果，恢复原文再分析。
 
-查词界面使用 Shadow DOM 隔离样式。来自词语、网页、翻译、收藏的数据以文本节点显示。翻译中的 HTML 实体用脱离文档的 textarea 解码，不把结果作为可执行 HTML 插入页面。
+查词卡片、图例和中文查询提示位于 Shadow DOM，来自网页、翻译和收藏的数据均作为文本显示。HTML 实体在脱离文档的 textarea 中解码，不作为可执行 HTML 插入。
 
-## 消息协议
+## 中文标注队列
 
-请求：`{ type, ...data }`；结果：`{ ok: true, data }` 或 `{ ok: false, error }`。
+两个语言开关默认关闭。IntersectionObserver 观察视口及 80px 邻近区域；按服务 / 语言 / 原形去重。每页最多同时两个请求，调度间隔约 300ms，每轮 120 次额度，用户可继续追加 120 次。失败暂停，按钮重试；关闭或偏好改变后用 epoch 丢弃在途旧结果。
+
+工作线程还会校验对应语言开关和服务，Bing 模式拒绝自动标注。翻译缓存上限为工作线程 800 项、页面 1000 项。同一在途查询复用 Promise；失败不缓存。关闭开关不能撤回已经发送的请求。
+
+## 消息协议与边界
+
+请求 `{ type, ...data }`，结果 `{ ok: true, data }` 或 `{ ok: false, error }`。
 
 | 类型 | 用途 | 调用范围 |
 | --- | --- | --- |
-| TOKENIZE | 分词与读音 | 内容脚本 / 扩展页 |
-| TRANSLATE | 固定服务的单词翻译 | 内容脚本 / 扩展页 |
+| TOKENIZE | texts 和可选 languages 数组，返回带语言 / 角色的 tokens | 内容脚本 / 扩展页 |
+| TRANSLATE / TRANSLATE_INLINE | 点击查词 / 已开启的中文标注 | 内容脚本 / 扩展页 |
 | HAS_WORD / SAVE_WORD | 检查与收藏 | 内容脚本 / 扩展页 |
-| SPEAK / OPEN_VOCAB | 朗读 / 打开单词本 | 内容脚本 / 扩展页 |
-| GET_SETTINGS / SAVE_SETTINGS | 含密钥的配置 | 仅扩展页 |
-| GET_WORDS / UPDATE_WORD / DELETE_WORD / IMPORT_WORDS | 本地单词本管理 | 仅扩展页 |
-| TOGGLE_TAB / PAGE_STATE | 控制当前网页 | 仅扩展页 |
-| YH_SET / YH_STATUS / YH_PREFERENCES | 扩展到内容脚本 | 校验 sender.id |
+| SPEAK / OPEN_VOCAB | 按语言朗读 / 打开单词本 | 内容脚本 / 扩展页 |
+| GET_SETTINGS / SAVE_SETTINGS | 含密钥配置；保存时合并已有配置 | 仅扩展页 |
+| GET_WORDS / UPDATE_WORD / DELETE_WORD / IMPORT_WORDS | 收藏管理 | 仅扩展页 |
+| REVIEW_WORD | 单词 ID、评价、reviewId，返回已保存单词 | 仅扩展页 |
+| TOGGLE_TAB / PAGE_STATE | 当前网页控制 | 仅扩展页 |
+| YH_SET / YH_STATUS / YH_PREFERENCES | 扩展向内容脚本发送状态或公开偏好 | 校验 sender.id |
 
-无 `onMessageExternal`，不暴露可任意 fetch URL 的接口。存储访问级别为 TRUSTED_CONTEXTS；带密钥设置不能传回内容脚本，只广播公开显示偏好。
+无 onMessageExternal，无任意 URL 抓取接口。存储权限为 TRUSTED_CONTEXTS；密钥不进入网页，仅广播公开偏好。
 
-## 单词数据
+## 收藏与复习数据
 
 ```js
 {
-  id: "読む␟よむ", // 原形 + U+241F + 读音
-  surface: "読む", base: "読む", reading: "よむ", romaji: "yomu",
-  pos: "動詞", meaning: "读；阅读", provider: "MyMemory",
-  sentence: "私は本を読む。", sourceTitle: "原页面标题",
+  id: "en␟read", language: "en", // 日语沿用原形 + ␟ + 读音的旧 ID
+  surface: "reads", base: "read", reading: "", romaji: "",
+  pos: "动词", meaning: "阅读", provider: "MyMemory",
+  sentence: "She reads a book.", sourceTitle: "原页面标题",
   sourceUrl: "https://example.com/article", note: "自己的笔记",
-  mastered: false, createdAt: 1789380000000
+  mastered: false, createdAt: 1789380000000,
+  review: { stage: 1, dueAt: 1789466400000, lastReviewedAt: 1789380000000,
+    reviews: 1, lapses: 0, lastReviewId: "评分去重标识" }
 }
 ```
 
-同一原形和读音去重；不同活用读音可能保留为不同卡片。所有存储修改进入串行队列，避免多个标签页同时收藏时丢失更新。导入逐条校验、限制字段长度和条数，原文链接只接受 HTTP / HTTPS，未知字段被丢弃。CSV 对可能成为公式的字段加前导单引号。
+旧记录没有 language 时按日语读取，无 review 时视为未复习，保留旧 ID 和笔记。所有存储修改进入串行队列。复习时间由工作线程计算，最近一次相同 reviewId 重试不重复评分。调度和边界见[背词说明](REVIEW.md)。
 
-JSON 导出格式为 `{ app: 'yomihibi', version: 1, exportedAt, words }`。导入采取合并并保留已存在条目的方式，不覆盖笔记。
+JSON 导出 `{ app: 'yomihibi', version: 2, exportedAt, words }`，可导入 v1 / v2；合并时保留已有同 ID 记录，不覆盖其笔记或复习进度。字段长度、数量和复习数值均校验，来源链接只接受 HTTP / HTTPS，CSV 防止公式注入。密钥不参与导出。
 
-## 翻译与朗读
+## 翻译、语音与发布
 
-MyMemory 使用 GET `q` / `langpair=ja|zh-CN`。微软使用 POST `translate?api-version=3.0&from=ja&to=zh-Hans`，密钥和区域放请求头。查询最多 100 字，12 秒超时，内存中缓存最多 300 项，对相同在途请求复用 Promise；不缓存失败。
+MyMemory 使用 GET q / langpair=ja|zh-CN 或 en|zh-CN。微软 POST 使用 from=ja 或 en、to=zh-Hans，密钥及区域在请求头。查询上限 100 字，12 秒超时。朗读使用 chrome.tts 查找对应语言语音，缺少语音会提示。
 
-朗读通过 `chrome.tts` 查找 `ja` 开头的语音。缺少日语语音会返回明确提示，不声称提供了离线 TTS 模型。
-
-## 构建与发布
-
-`npm ci` 安装锁定依赖，`npm run build` 构建 `dist/`，复制词典与第三方许可并生成 PNG 图标。`npm run package` 将 dist 内容直接放入 ZIP 根目录。
-
-GitHub Actions 在 push / PR 上执行单元与 Chromium 测试并构建产物。创建 GitHub Release 后，发布工作流从对应版本标签构建 ZIP 并附加为发行资产。首次安装请使用 Release 资产而非源码压缩包。
+`npm ci` 安装锁定依赖，`npm run build` 构建 dist 并复制词典、许可与图标；`npm run package` 将 dist 内容放入 ZIP 根目录。GitHub Actions 在 push / PR 执行单元、Chromium 测试与构建；发布工作流从版本标签构建并上传 ZIP。安装应使用 Release 的扩展 ZIP。
